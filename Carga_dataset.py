@@ -6,6 +6,9 @@ df = data.copy() # hacemos una copia sobre la cual trabajar
 df = df.rename(columns={'Tender_id':'id_licitacion','Item_Key':'id_producto','Nombre linea Adquisicion':'nombre_producto','Descripcion linea Adquisicion':'descripcion','Kupfer':'label'})
 df.index = df['id_producto']  # cambiamos el indice del dataframe por el id_producto
 
+'se eliminan columnas que no se utilizaran'
+df.drop(columns=['id_licitacion','id_producto','Rubro2','Rubro3'], inplace=True)
+
 'limpieza de datos, nans, duplicados'
 df.dropna(axis=0, inplace = True) #Si alguna fila tiene un NaN se elimina la fila 
 df.drop_duplicates(keep='first', inplace=True) # elimina los registros duplicados
