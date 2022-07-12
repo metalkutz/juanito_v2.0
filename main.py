@@ -76,3 +76,4 @@ def texto_raiz(texto):
     return texto
 
 df['Descripcion raiz limpia']= df['Descripcion limpia'].apply(lambda texto: texto_raiz(texto)) #Aplicamos la función texto_raiz que nos convierte las palabras en sus raíces
+
