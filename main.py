@@ -1,3 +1,4 @@
+# %%
 import pandas as pd
 import numpy as np
 
@@ -7,8 +8,7 @@ import regex
 from nltk.corpus import stopwords
 from nltk.stem.snowball import SnowballStemmer
 import nltk
-from sklearn.feature_extraction.text import  TfidfVectorizer
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import  TfidfVectorizer, TfidfTransformer, CountVectorizer
 
 ##########  libreria para entrenamiento #############
 
@@ -75,5 +75,22 @@ def texto_raiz(texto):
     texto = " ".join(texto)
     return texto
 
+# vamos a trabajar con las palabras estemizadas/raices
 df['Descripcion raiz limpia']= df['Descripcion limpia'].apply(lambda texto: texto_raiz(texto)) #Aplicamos la función texto_raiz que nos convierte las palabras en sus raíces
+df.drop(['Descripcion limpia'], axis=1, inplace=True)
+# %%
+# ahora vectorizamos 
+descripcion = np.array(df['Descripcion raiz limpia']) # array para armar el bag of words
 
+# forma larga Count y TFIDF
+count = CountVectorizer()
+bag = count.fit_transform(descripcion)
+tfidf = TfidfTransformer()
+np.set_printoptions(precision=2)
+tfidf.fit_transform(bag)
+
+# forma corta TFIDF vectorizer
+vectorizador = TfidfVectorizer()
+matriz_palabras = vectorizador.fit_transform(descripcion)
+
+# %%
