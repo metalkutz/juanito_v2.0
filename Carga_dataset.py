@@ -7,7 +7,7 @@ df = df.rename(columns={'Tender_id':'id_licitacion','Item_Key':'id_producto','No
 df.index = df['id_producto']  # cambiamos el indice del dataframe por el id_producto
 
 'se eliminan columnas que no se utilizaran'
-df.drop(columns=['id_licitacion','id_producto','Rubro2','Rubro3'], inplace=True)
+df.drop(columns=['id_licitacion','id_producto','Rubro2','Rubro3','nombre_producto'], inplace=True)
 
 'limpieza de datos, nans, duplicados'
 df.dropna(axis=0, inplace = True) #Si alguna fila tiene un NaN se elimina la fila 

@@ -13,7 +13,7 @@ from sklearn.feature_extraction.text import  TfidfVectorizer, TfidfTransformer, 
 ##########  libreria para entrenamiento #############
 
 
-
+# %%
 ######### Carga, preprocesamiento datos ###################
 'carga inicial dataset desde archivo csv a un objeto panda'
 data = pd.read_csv(r'.\Datos\dataset_mercado_publico.csv', delimiter=';')
@@ -22,7 +22,7 @@ df = df.rename(columns={'Tender_id':'id_licitacion','Item_Key':'id_producto','No
 df.index = df['id_producto']  # cambiamos el indice del dataframe por el id_producto
 
 'se eliminan columnas que no se utilizaran'
-df.drop(columns=['id_licitacion','id_producto','Rubro2','Rubro3'], inplace=True)
+df.drop(columns=['id_licitacion','id_producto','Rubro2','Rubro3','nombre_producto'], inplace=True)
 
 'limpieza de datos, nans, duplicados'
 df.dropna(axis=0, inplace = True) #Si alguna fila tiene un NaN se elimina la fila 
@@ -31,6 +31,7 @@ df.drop_duplicates(keep='first', inplace=True) # elimina los registros duplicado
 'creación de variables'
 df = pd.get_dummies(df, columns=['Rubro1'] ,drop_first=True) # convertimos var categorica Rubro1 en dummy
 
+# %% 
 ########### NLP #################
 df['Descripcion limpia']= df['descripcion'].astype(str) #Convertimos la columna en string para poder trabajar con el texto
 
@@ -53,44 +54,41 @@ def sin_tildes(s):
 # función para limpieza de texto (minusculas, quitar simbolos, quitar stopwords)
 def texto_limpio(texto):
     texto = texto.lower() # convertir en minúsculas
-    texto = re.sub(r"[\W]+", " ",texto) # remover caract especiales
+    texto = re.sub(r"[\W\d_]+", " ",texto) # remover caract especiales y números
     texto = sin_tildes(texto) # remove tildes
     texto = texto.split() # tokenizar
+    texto = [palabra for palabra in texto if len(palabra) > 3] # eliminar palabras con menos de 3 letras
     texto = [palabra for palabra in texto if palabra not in sw] # stopwords
     texto = " ".join(texto)
     return texto
 
 df['Descripcion limpia'] = df['Descripcion limpia'].apply(lambda texto: texto_limpio(texto)) #Aplicamos la función texto_limpio para limpiar las descripciones
 
-stemmer=SnowballStemmer("spanish") #Obtención de texto raíz limpio
-
-#función que adiciona el convertir la palabra y la estemiza
+stemmer=SnowballStemmer("spanish")
+#Obtención de texto raíz limpio
 def texto_raiz(texto):    
     texto = texto.lower() # convertir en minúsculas
-    texto = re.sub(r"[\W]+", " ",texto) # remover caract especiales
+    texto = re.sub(r"[\W\d_]+", " ",texto) # remover caract especiales y números
     texto = sin_tildes(texto) # remove tildes
     texto = texto.split() # tokenizar
+    texto = [palabra for palabra in texto if len(palabra) > 3] # eliminar palabras con menos de 3 letras
     texto = [palabra for palabra in texto if palabra not in sw] # stopwords
     texto = [stemmer.stem(palabra) for palabra in texto] #stem
     texto = " ".join(texto)
+    
     return texto
 
 # vamos a trabajar con las palabras estemizadas/raices
-df['Descripcion raiz limpia']= df['Descripcion limpia'].apply(lambda texto: texto_raiz(texto)) #Aplicamos la función texto_raiz que nos convierte las palabras en sus raíces
-df.drop(['Descripcion limpia'], axis=1, inplace=True)
+df['descripcion']= df['descripcion'].astype(str)
+df['Descripcion raiz limpia']= df['descripcion'].apply(lambda texto: texto_raiz(texto)) #Aplicamos la función texto_raiz que nos convierte las palabras en sus raíces
+df.drop(columns=['descripcion','Descripcion limpia'], axis=1, inplace=True)
+
 # %%
 # ahora vectorizamos 
 descripcion = np.array(df['Descripcion raiz limpia']) # array para armar el bag of words
-
-# forma larga Count y TFIDF
-count = CountVectorizer()
-bag = count.fit_transform(descripcion)
-tfidf = TfidfTransformer()
 np.set_printoptions(precision=2)
-tfidf.fit_transform(bag)
 
 # forma corta TFIDF vectorizer
 vectorizador = TfidfVectorizer()
 matriz_palabras = vectorizador.fit_transform(descripcion)
-
-# %%
+matriz_palabras = matriz_palabras.astype('float32') # cambiamos el tipo a float32 para disminuir uso de memoria
