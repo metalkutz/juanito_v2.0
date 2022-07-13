@@ -98,7 +98,7 @@ matriz_palabras = matriz_palabras.astype('float32') # cambiamos el tipo a float3
 
 ############ PCA ##############
 df2 = pd.DataFrame(matriz_palabras.toarray())  # el array de matriz palabras pasamos a dataframe
-df2.columns = vectorizador.get_feature_names_out() # agregamos nombres a las columnas con las palabras del vocabulario
+df2.columns = vectorizador.get_feature_names() # agregamos nombres a las columnas con las palabras del vocabulario
 pca2 = PCA(n_components=2000) # objeto de PCA con un máximo de 2000 componentes
 pca2 = pca2.fit(df2) # ajustamos el PCA al df2 de matriz de palabras
 lista_PCA = [ 'PC'+str(i) for i in range(len(pca2.components_)) ] # generamos la lista de nombres de componentes del PCA

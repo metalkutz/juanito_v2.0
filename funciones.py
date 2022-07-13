@@ -5,8 +5,10 @@ import regex
 from nltk.corpus import stopwords
 from nltk.stem.snowball import SnowballStemmer
 
+sw = stopwords.words('spanish') # descargamos la lista de stopwords
+stemmer=SnowballStemmer("spanish")
 
-
+# %% 
 # función para limpiar tildes
 def sin_tildes(s):
     tildes = (
@@ -20,8 +22,8 @@ def sin_tildes(s):
         s = s.replace(origen, destino)
     return s
 
-sw = stopwords.words('spanish') # descargamos la lista de stopwords
 
+# %% 
 # función para limpieza de texto (minusculas, quitar simbolos, quitar stopwords)
 def texto_limpio(texto):
     texto = texto.lower() # convertir en minúsculas
@@ -33,8 +35,8 @@ def texto_limpio(texto):
     texto = " ".join(texto)
     return texto
 
+# %% 
 
-stemmer=SnowballStemmer("spanish")
 #Obtención de texto raíz limpio
 def texto_raiz(texto):    
     texto = texto.lower() # convertir en minúsculas
