@@ -47,8 +47,3 @@ def texto_raiz(texto):
     texto = " ".join(texto)
     
     return texto
-
-def sin_num(texto):
-    texto = re.sub(r"[\W\d_]+", " ",texto) # remover caract especiales y números
-
-    return texto
