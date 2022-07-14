@@ -13,6 +13,9 @@ from sklearn.feature_extraction.text import  TfidfVectorizer, TfidfTransformer, 
 ###### PCA #######
 from sklearn.decomposition import PCA
 
+######### re-balanceo de muestras ##########
+from imblearn.over_sampling import SMOTE 
+
 ##########  libreria para entrenamiento #############
 
 
@@ -61,7 +64,7 @@ matriz_palabras = matriz_palabras.astype('float32') # cambiamos el tipo a float3
 ############ PCA ##############
 df2 = pd.DataFrame(matriz_palabras.toarray())  # el array de matriz palabras pasamos a dataframe
 df2.columns = vectorizador.get_feature_names_out() # agregamos nombres a las columnas con las palabras del vocabulario
-pca = PCA(n_components=2000) # objeto de PCA con un máximo de 2000 componentes
+pca = PCA(n_components=1000) # objeto de PCA con un máximo de 2000 componentes
 pca = pca.fit(df2) # ajustamos el PCA al df2 de matriz de palabras
 lista_PCA = [ 'PC'+str(i) for i in range(len(pca.components_)) ] # generamos la lista de nombres de componentes del PCA
 reduced_data = pca.transform(df2)  # aplicamos la transformación al dataframe de la matriz de palabras reduciendo la dimensionalidad
@@ -71,3 +74,8 @@ df3 = pd.concat([temp,reduced_data], axis=1) #concatenamos dataframe original co
 df3.drop(['Descripcion raiz limpia'], axis=1, inplace=True) # eliminamos columna de descripcion
 
 ############ datos para train y test ###########
+X = df3.drop(columns=['id_producto','label'], axis=1) # creamos la variables independientes
+y = df3['label']  # creamos la variable dependiente
+
+oversampling = SMOTE(sampling_strategy=0.30) # usamos oversampling sintético podemos elegir el nivel de oversampling con  sampling_strategy=0.80
+X_balanceado, y_balanceado = oversampling.fit_resample(X, y) #Se obtienen nuevos X e y
