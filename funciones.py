@@ -1,13 +1,14 @@
-
+# %%
 #### librerias para NLP ##########
 import re
 import regex
 from nltk.corpus import stopwords
 from nltk.stem.snowball import SnowballStemmer
+
 #### librerias para Métricas ##########
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, classification_report, plot_roc_curve, plot_confusion_matrix, accuracy_score, roc_auc_score, make_scorer
-import sklearn
+from sklearn.metrics import confusion_matrix,ConfusionMatrixDisplay,classification_report,roc_auc_score,RocCurveDisplay
+
+##### librerias para visualización
 import matplotlib.pyplot as plt
 # %% 
 sw = stopwords.words('spanish') # descargamos la lista de stopwords
@@ -61,12 +62,12 @@ def texto_raiz(texto):
 #Obtención Métricas y threshold
 def metrics(model, X_train, X_test, y_train, y_test, thr=0.5):
     
-    plot_roc_curve(model, X_test, y_test) 
+    RocCurveDisplay.from_estimator(model, X_test, y_test)
     plt.show()
 # train
     probs=model.predict_proba(X_train)
     y_pred= (probs[:,1]>thr)*1
-    print("Train AUC", sklearn.metrics.roc_auc_score(y_train, probs[:,1]))
+    print("Train AUC", roc_auc_score(y_train, probs[:,1]))
     print(classification_report(y_train,y_pred,target_names=['0','1']))
     cm = confusion_matrix(y_train,y_pred) #Matriz
     disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=model.classes_)
@@ -78,9 +79,10 @@ def metrics(model, X_train, X_test, y_train, y_test, thr=0.5):
     
     probs=model.predict_proba(X_test)
     y_pred= (probs[:,1]>thr)*1
-    print("Test AUC", sklearn.metrics.roc_auc_score(y_test, probs[:,1]))
+    print("Test AUC", roc_auc_score(y_test, probs[:,1]))
     print(classification_report(y_test,y_pred,target_names=['0','1']))
     cm = confusion_matrix(y_test,y_pred) #Matriz
     disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=model.classes_)
     disp.plot()
     plt.show()
+# %%
