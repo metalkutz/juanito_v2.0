@@ -52,7 +52,8 @@ matriz_palabras = matriz_palabras.astype('float32') # cambiamos el tipo a float3
 ############ PCA ##############
 df2 = pd.DataFrame(matriz_palabras.toarray())  # el array de matriz palabras pasamos a dataframe
 df2.columns = vectorizador.get_feature_names() # agregamos nombres a las columnas con las palabras del vocabulario
-pca = PCA(n_components=100) # objeto de PCA con un máximo de 2000 componentes
+# %%
+pca = PCA(n_components=10000) # objeto de PCA con un máximo de 2000 componentes
 pca = pca.fit(df2) # ajustamos el PCA al df2 de matriz de palabras
 lista_PCA = [ 'PC'+str(i) for i in range(len(pca.components_)) ] # generamos la lista de nombres de componentes del PCA
 reduced_data = pca.transform(df2)  # aplicamos la transformación al dataframe de la matriz de palabras reduciendo la dimensionalidad
@@ -60,6 +61,7 @@ reduced_data = pd.DataFrame(reduced_data, columns = lista_PCA) # agregamos nombr
 temp = df.reset_index() #df original reseteamos el indice para poder concatenar
 df3 = pd.concat([temp,reduced_data], axis=1) #concatenamos dataframe original con componentes
 df3.drop(['Descripcion raiz limpia'], axis=1, inplace=True) # eliminamos columna de descripcion
+
 # %%
 ############ datos para train y test ###########
 X = df3.drop(columns=['id_producto','label'], axis=1) # creamos la variables independientes
@@ -70,7 +72,7 @@ X_balanceado, y_balanceado = oversampling.fit_resample(X, y) #Se obtienen nuevos
 # %%
 'cambiamos a directorio de datos para guardar los dataframes creados'
 os.chdir(r'Datos')
-
+# %%
 # guardamos el dataframe final para entrenamiento aplicando sobremuestreo SMOTE con sobremuestreo de 30%
 train_test = {'X_balanceado':X_balanceado,'y_balanceado':y_balanceado}
 fh = open('df_smote30_train_test.pkl','wb')
