@@ -53,7 +53,7 @@ matriz_palabras = matriz_palabras.astype('float32') # cambiamos el tipo a float3
 df2 = pd.DataFrame(matriz_palabras.toarray())  # el array de matriz palabras pasamos a dataframe
 df2.columns = vectorizador.get_feature_names() # agregamos nombres a las columnas con las palabras del vocabulario
 # %%
-pca = PCA(n_components=10000) # objeto de PCA con un máximo de 2000 componentes
+pca = PCA(n_components=100) # objeto de PCA con un máximo de 2000 componentes
 pca = pca.fit(df2) # ajustamos el PCA al df2 de matriz de palabras
 lista_PCA = [ 'PC'+str(i) for i in range(len(pca.components_)) ] # generamos la lista de nombres de componentes del PCA
 reduced_data = pca.transform(df2)  # aplicamos la transformación al dataframe de la matriz de palabras reduciendo la dimensionalidad
@@ -76,11 +76,12 @@ os.chdir(r'Datos')
 # guardamos el dataframe final para entrenamiento aplicando sobremuestreo SMOTE con sobremuestreo de 30%
 train_test = {'X_balanceado':X_balanceado,'y_balanceado':y_balanceado}
 fh = open('df_smote30_train_test.pkl','wb')
-pickle.dump(reduced_data,fh)
+#fh = open('df_smote30_train_test(redux).pkl','wb')
+pickle.dump(train_test,fh)
 fh.close()
+####### OJO QUE ARCHIVO PESA 2GB
 # %%
-'''
-############# ARCHIVOS MUY PESADOS no guardar en GIT
+############# ARCHIVOS MUY PESADOS para guardar en GIT o que no se usan 
 # %%
 #guardamos el datafra con la data original
 fh = open('data.pkl','wb')
@@ -106,4 +107,3 @@ fh.close()
 fh = open('df_union.pkl','wb')
 pickle.dump(df3,fh)
 fh.close()
-'''
