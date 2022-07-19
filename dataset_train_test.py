@@ -34,8 +34,12 @@ fh = open('data.pkl','wb')
 pickle.dump(data,fh)
 fh.close()
 # %%
+X_cat = df0.drop(columns=['label'], axis=1) # creamos la variables independientes
+y_cat = df0['label']  # creamos la variable dependiente
+train_test_cat = {'X_cat':X_cat,'y_cat':y_cat}
+
 fh0 = open('df_categorias.pkl','wb')
-pickle.dump(df0,fh0)
+pickle.dump(train_test_cat,fh0)
 fh0.close()
 # %%
 ########### NLP #################

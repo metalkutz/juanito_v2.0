@@ -25,9 +25,12 @@ data.head()
 # %%
 ##### archivo generado con el codigo dataset_train_test.py
 fh0=open('df_categorias.pkl','rb')
-df0=pickle.load(fh0)
+train_test_cat=pickle.load(fh0)
 fh0.close()
-df0.head()
+
+X_cat = train_test_cat['X_cat']
+y_cat = train_test_cat['y_cat']
+print('X_cat:',X_cat.shape,'y_cat:',y_cat.shape)
 # %%
 ########### NLP ################# 
 ##### archivo generado con el codigo dataset_train_test.py
