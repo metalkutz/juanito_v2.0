@@ -96,8 +96,8 @@ y = df3['label']  # creamos la variable dependiente
 # %%
 ############# ARCHIVOS MUY PESADOS para guardar en GIT o que no se usan 
 # guardamos el dataframe final para entrenamiento aplicando sobremuestreo SMOTE con sobremuestreo de 30%
-train_test = {'X_balanceado':X,'y_balanceado':y}
-fh = open('df_smote30_train_test.pkl','wb')
+train_test = {'X':X,'y':y}
+fh = open('df_PCA10k_train_test.pkl','wb')
 #fh = open('df_smote30_train_test(redux).pkl','wb')
 pickle.dump(train_test,fh)
 fh.close()

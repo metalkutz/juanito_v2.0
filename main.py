@@ -46,14 +46,14 @@ fh4.close()
 df3.head()'''
 ############ datos para train y test ###########
 ##### archivo generado con el codigo dataset_train_test.py
-fh5=open('df_smote30_train_test.pkl','rb')
+fh5=open('df_PCA10k_train_test.pkl','rb')
 train_test=pickle.load(fh5)
 fh5.close()
 
 
-X_balanceado = train_test['X_balanceado']
-y_balanceado = train_test['y_balanceado']
-print('X:',X_balanceado.shape,'y:',y_balanceado.shape)
+X = train_test['X']
+y = train_test['y']
+print('X:',X.shape,'y:',y.shape)
 
 # %%
 ##### archivo reducido en componentes PCA = 100 para prueba de flujos
