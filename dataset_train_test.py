@@ -34,6 +34,10 @@ fh = open('data.pkl','wb')
 pickle.dump(data,fh)
 fh.close()
 # %%
+fh0 = open('df_categorias.pkl','wb')
+pickle.dump(df0,fh0)
+fh0.close()
+# %%
 ########### NLP #################
 df['Descripcion limpia']= df['descripcion'].astype(str) #Convertimos la columna en string para poder trabajar con el texto
 
@@ -64,6 +68,7 @@ matriz_palabras = matriz_palabras.astype('float32') # cambiamos el tipo a float3
 df2 = pd.DataFrame(matriz_palabras.toarray())  # el array de matriz palabras pasamos a dataframe
 df2.columns = vectorizador.get_feature_names() # agregamos nombres a las columnas con las palabras del vocabulario
 # %%
+############# ARCHIVOS MUY PESADOS para guardar en GIT o que no se usan 
 '''# guardamos el dataframe con la bolsa de palabras escalado con TF-IDF
 fh = open('df_tfidf.pkl','wb')
 pickle.dump(df2,fh)
@@ -78,12 +83,12 @@ temp = df.reset_index() #df original reseteamos el indice para poder concatenar
 df3 = pd.concat([temp,reduced_data], axis=1) #concatenamos dataframe original con componentes
 df3.drop(['Descripcion raiz limpia'], axis=1, inplace=True) # eliminamos columna de descripcion
 # %%
-'''# guardamos el dataframe con los componentes principales PCA
-fh = open('df_PCA100.pkl','wb')
+# guardamos el dataframe con los componentes principales PCA
+'''fh = open('df_PCA10.pkl','wb')
 pickle.dump(reduced_data,fh)
-fh.close()'''
+fh.close()
 
-'''# guardamos el dataframe final previo a sobremuestreo SMOTE
+# guardamos el dataframe final previo a sobremuestreo SMOTE
 fh = open('df_union.pkl','wb')
 pickle.dump(df3,fh)
 fh.close()'''
@@ -94,11 +99,10 @@ X = df3.drop(columns=['id_producto','label'], axis=1) # creamos la variables ind
 y = df3['label']  # creamos la variable dependiente
 
 # %%
-############# ARCHIVOS MUY PESADOS para guardar en GIT o que no se usan 
+
 # guardamos el dataframe final para entrenamiento aplicando sobremuestreo SMOTE con sobremuestreo de 30%
 train_test = {'X':X,'y':y}
-fh = open('df_PCA10k_train_test.pkl','wb')
-#fh = open('df_smote30_train_test(redux).pkl','wb')
+fh = open('df_PCA10k_train_test.pkl','wb')  ####### OJO QUE ARCHIVO PESA 2GB
+#fh = open('df_PCA10_train_test.pkl','wb')
 pickle.dump(train_test,fh)
 fh.close()
-####### OJO QUE ARCHIVO PESA 2GB

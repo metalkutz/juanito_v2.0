@@ -23,6 +23,12 @@ data=pickle.load(fh1)
 fh1.close()
 data.head()
 # %%
+##### archivo generado con el codigo dataset_train_test.py
+fh0=open('df_categorias.pkl','rb')
+df0=pickle.load(fh0)
+fh0.close()
+df0.head()
+# %%
 ########### NLP ################# 
 ##### archivo generado con el codigo dataset_train_test.py
 fh2=open('df_nltk.pkl','rb')
@@ -56,13 +62,13 @@ y = train_test['y']
 print('X:',X.shape,'y:',y.shape)
 
 # %%
-##### archivo reducido en componentes PCA = 100 para prueba de flujos
-'''fh6=open('df_smote30_train_test(redux).pkl','rb')
+##### archivo reducido en componentes PCA = 10 para prueba de flujos
+fh6=open('df_PCA10_train_test.pkl','rb')
 train_test_redux=pickle.load(fh6)
 fh6.close()
 
 
-X_balanceado_redux = train_test_redux['X_balanceado']
-y_balanceado_redux = train_test_redux['y_balanceado']
-print('X:',X_balanceado_redux.shape,'y:',y_balanceado_redux.shape)'''
+X_redux = train_test_redux['X']
+y_redux = train_test_redux['y']
+print('X_redux:',X_redux.shape,'y_redux:',y_redux.shape)
 # %%
