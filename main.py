@@ -57,12 +57,12 @@ print('X:',X_balanceado.shape,'y:',y_balanceado.shape)
 
 # %%
 ##### archivo reducido en componentes PCA = 100 para prueba de flujos
-fh6=open('df_smote30_train_test(redux).pkl','rb')
+'''fh6=open('df_smote30_train_test(redux).pkl','rb')
 train_test_redux=pickle.load(fh6)
 fh6.close()
 
 
 X_balanceado_redux = train_test_redux['X_balanceado']
 y_balanceado_redux = train_test_redux['y_balanceado']
-print('X:',X_balanceado_redux.shape,'y:',y_balanceado_redux.shape)
+print('X:',X_balanceado_redux.shape,'y:',y_balanceado_redux.shape)'''
 # %%
