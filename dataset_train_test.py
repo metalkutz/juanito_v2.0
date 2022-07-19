@@ -69,7 +69,7 @@ fh = open('df_tfidf.pkl','wb')
 pickle.dump(df2,fh)
 fh.close()'''
 # %%
-pca = PCA(n_components=100) # objeto de PCA con un máximo de 2000 componentes
+pca = PCA(n_components=10000) # objeto de PCA con un máximo de 2000 componentes
 pca = pca.fit(df2) # ajustamos el PCA al df2 de matriz de palabras
 lista_PCA = [ 'PC'+str(i) for i in range(len(pca.components_)) ] # generamos la lista de nombres de componentes del PCA
 reduced_data = pca.transform(df2)  # aplicamos la transformación al dataframe de la matriz de palabras reduciendo la dimensionalidad
@@ -93,12 +93,10 @@ fh.close()'''
 X = df3.drop(columns=['id_producto','label'], axis=1) # creamos la variables independientes
 y = df3['label']  # creamos la variable dependiente
 
-oversampling = SMOTE(sampling_strategy=0.30) # usamos oversampling sintético podemos elegir el nivel de oversampling con  sampling_strategy=0.80
-X_balanceado, y_balanceado = oversampling.fit_resample(X, y) #Se obtienen nuevos X e y
 # %%
 ############# ARCHIVOS MUY PESADOS para guardar en GIT o que no se usan 
 # guardamos el dataframe final para entrenamiento aplicando sobremuestreo SMOTE con sobremuestreo de 30%
-train_test = {'X_balanceado':X_balanceado,'y_balanceado':y_balanceado}
+train_test = {'X_balanceado':X,'y_balanceado':y}
 fh = open('df_smote30_train_test.pkl','wb')
 #fh = open('df_smote30_train_test(redux).pkl','wb')
 pickle.dump(train_test,fh)
