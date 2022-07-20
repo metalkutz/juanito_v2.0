@@ -43,35 +43,34 @@ df.head()
 
 # forma corta TFIDF vectorizer
 ##### archivo generado con el codigo dataset_train_test.py
-'''fh3 = open('df_tfidf.pkl','wb')
-pickle.dump(df2,fh3)
+'''fh3 = open('df_tfidf.pkl','rb')
+df_tfidf=pickle.load(df_tfidf,fh3)
 fh3.close()
-df2.head()'''
+df_tfidf.head()'''
 ############ PCA ##############
 ##### archivo generado con el codigo dataset_train_test.py
-'''fh4=open('df_PCA100.pkl.pkl','rb')
-dff3=pickle.load(fh4)
+fh4=open('df_PCA10k.pkl','rb')
+reduced_data=pickle.load(fh4)
 fh4.close()
-df3.head()'''
+reduced_data.head()
+
+# %%
 ############ datos para train y test ###########
 ##### archivo generado con el codigo dataset_train_test.py
 fh5=open('df_PCA10k_train_test.pkl','rb')
 train_test=pickle.load(fh5)
 fh5.close()
 
-
 X = train_test['X']
 y = train_test['y']
 print('X:',X.shape,'y:',y.shape)
-
-# %%
+'''
 ##### archivo reducido en componentes PCA = 10 para prueba de flujos
 fh6=open('df_PCA10_train_test.pkl','rb')
 train_test_redux=pickle.load(fh6)
 fh6.close()
 
-
 X_redux = train_test_redux['X']
 y_redux = train_test_redux['y']
-print('X_redux:',X_redux.shape,'y_redux:',y_redux.shape)
+print('X_redux:',X_redux.shape,'y_redux:',y_redux.shape)'''
 # %%
