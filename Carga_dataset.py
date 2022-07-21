@@ -17,7 +17,7 @@ df.dropna(axis=0, inplace = True) #Si alguna fila tiene un NaN se elimina la fil
 df.drop_duplicates(keep='first', inplace=True) # elimina los registros duplicados
 
 df0.dropna(axis=0, inplace = True) #Si alguna fila tiene un NaN se elimina la fila 
-df0.drop_duplicates(keep='first', inplace=True) # elimina los registros duplicados
+#df0.drop_duplicates(keep='first', inplace=True) # elimina los registros duplicados
 
 
 'creación de variables'
