@@ -61,6 +61,7 @@ fh5.close()
 X = train_test['X']
 y = train_test['y']
 print('X:',X.shape,'y:',y.shape)
+# %%
 '''
 ##### archivo reducido en componentes PCA = 10 para prueba de flujos
 fh6=open('df_PCA10_train_test.pkl','rb')
