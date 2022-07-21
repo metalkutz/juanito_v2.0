@@ -1,7 +1,4 @@
 # %%
-####### funciones, carga de datos inicial
-from funciones import* 
-
 ####### os, pickle
 import os
 import pickle
