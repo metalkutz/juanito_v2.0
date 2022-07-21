@@ -103,7 +103,6 @@ dfcat = df0[filtro]  #dataframe filtrado solo por las columnas
 dfcat = dfcat.reset_index() #df0 dataframe con variables categoricas reseteamos el indice para poder concatenar
 dfcat.head()
 
-# %%
 # creamos la variables independientes
 X = pd.concat([dfcat,dfPCA], axis=1) # unimos las matrices de variables categoricas seleccionadas con el PCA de palabras
 y = data[['label']]  # creamos la variable dependiente
