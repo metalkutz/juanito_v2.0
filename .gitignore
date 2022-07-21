@@ -1,3 +1,7 @@
 __pycache__/
 Datos/*.pkl
 Datos/*.zip
+Datos/catboost_info/learn_error.tsv
+Datos/catboost_info/catboost_training.json
+Datos/catboost_info/time_left.tsv
+Datos/catboost_info/learn/events.out.tfevents
