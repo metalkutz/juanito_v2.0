@@ -1,6 +1,6 @@
 # %%
 ####### funciones, carga de datos inicial
-from Carga_dataset import *
+from Carga_dataset import data,df,df0
 from funciones import texto_limpio,texto_raiz
 from collections import Counter
 ####### os, pickle
@@ -18,30 +18,9 @@ from sklearn.decomposition import PCA
 
 ######### re-balanceo de muestras ##########
 from imblearn.over_sampling import SMOTE 
-# %%
+
 'cambiamos a directorio de datos para guardar los dataframes creados'
 os.chdir(r'Datos')
-
-# %%
-####### desde archivo Carga_dataset se trae dataframe con
-'carga inicial dataset desde archivo csv a un objeto panda'
-'se eliminan columnas que no se utilizaran'
-'limpieza de datos, nans, duplicados'
-'creación de variables'
-
-#guardamos el dataframe con la data original
-fh1 = open('data.pkl','wb')
-pickle.dump(data,fh1)
-fh1.close()
-# %%
-#guardamos el dataframe solo de las variables categoricas
-X_cat = df0.drop(columns=['label'], axis=1) # creamos la variables independientes
-y_cat = df0['label']  # creamos la variable dependiente
-train_test_cat = {'X_cat':X_cat,'y_cat':y_cat}
-
-fh0 = open('df_categorias.pkl','wb')
-pickle.dump(train_test_cat,fh0)
-fh0.close()
 # %%
 ########### NLP #################
 df['Descripcion limpia']= df['descripcion'].astype(str) #Convertimos la columna en string para poder trabajar con el texto
@@ -52,8 +31,8 @@ df['Descripcion limpia'] = df['Descripcion limpia'].apply(lambda texto: texto_li
 # vamos a trabajar con las palabras estemizadas/raices
 df['descripcion']= df['descripcion'].astype(str)
 df['Descripcion raiz limpia']= df['descripcion'].apply(lambda texto: texto_raiz(texto)) #Aplicamos la función texto_raiz que nos convierte las palabras en sus raíces y las limpia
-df.drop(columns=['descripcion','Descripcion limpia'], axis=1, inplace=True)
-df.head()
+#df.drop(columns=['descripcion','Descripcion limpia'], axis=1, inplace=True)
+
 #guardamos el dataframe aplicando de nltk para limpieza de campo descripcion
 fh2 = open('df_nltk.pkl','wb')
 pickle.dump(df,fh2)
@@ -64,31 +43,31 @@ fh2.close()
 descripcion = np.array(df['Descripcion raiz limpia']) # array para armar el bag of words
 np.set_printoptions(precision=2)
 
-# forma corta TFIDF vectorizer
+# forma corta TFIDF vectorizer o bolsa de palabras normalizada
 vectorizador = TfidfVectorizer()
-matriz_palabras = vectorizador.fit_transform(descripcion)
+matriz_palabras = vectorizador.fit_transform(descripcion) # creamos la bolsa de palabras
 matriz_palabras = matriz_palabras.astype('float32') # cambiamos el tipo a float32 para disminuir uso de memoria
 # %%
 ############ PCA ##############
 df2 = pd.DataFrame(matriz_palabras.toarray())  # el array de matriz palabras pasamos a dataframe
 df2.columns = vectorizador.get_feature_names() # agregamos nombres a las columnas con las palabras del vocabulario
-df2.shape
+df2.shape  #51mil registros x 19mil columnas ojo que el indice es numérico con el mismo orden que el dataframe original
 # %%
 ############# ARCHIVOS MUY PESADOS para guardar en GIT o que no se usan 
-pca = PCA(n_components=10000) # objeto de PCA con un máximo de 2000 componentes
+#pca = PCA(n_components=10000) # objeto de PCA con un máximo de 10000 componentes
 #pca = PCA(n_components=1000) 
 #pca = PCA(n_components=5000) 
-#pca = PCA(n_components=7000) 
+pca = PCA(n_components=7000) 
 pca = pca.fit(df2) # ajustamos el PCA al df2 de matriz de palabras
 lista_PCA = [ 'PC'+str(i) for i in range(len(pca.components_)) ] # generamos la lista de nombres de componentes del PCA
 dfPCA = pca.transform(df2)  # aplicamos la transformación al dataframe de la matriz de palabras reduciendo la dimensionalidad
 dfPCA = pd.DataFrame(dfPCA, columns = lista_PCA) # agregamos nombre de las columnas asociadas a los componentes del PCA
 
 # guardamos el dataframe con los componentes principales PCA
-fh4 = open('df_PCA10k.pkl','wb')
+#fh4 = open('df_PCA10k.pkl','wb')
 #fh4 = open('df_PCA1k.pkl','wb')
 #fh4 = open('df_PCA5k.pkl','wb')
-#fh4 = open('df_PCA7k.pkl','wb')
+fh4 = open('df_PCA7k.pkl','wb')
 pickle.dump(dfPCA,fh4)
 fh4.close()
 
@@ -103,9 +82,16 @@ dfcat = df0[filtro]  #dataframe filtrado solo por las columnas
 dfcat = dfcat.reset_index() #df0 dataframe con variables categoricas reseteamos el indice para poder concatenar
 dfcat.head()
 
+fh9=open('df_PCA10k.pkl','rb')  #aseguramos de cargar los PCA10mil
+dfPCA=pickle.load(fh9)
+fh9.close()
+
 # creamos la variables independientes
-X = pd.concat([dfcat,dfPCA], axis=1) # unimos las matrices de variables categoricas seleccionadas con el PCA de palabras
-y = data[['label']]  # creamos la variable dependiente
+X = pd.concat([dfcat,dfPCA], axis=1) # concatenamos las matrices de variables categoricas seleccionadas con el PCA de palabras
+X.index = X['id_producto']  #vuelvo a dejar el índice del producto
+X.drop(columns=['id_producto'], inplace=True) # elimino la columna 
+# creamos la variable dependiente
+y = data[['label']]  
 # %%
 # guardamos el dataframe final para entrenamiento aplicando sobremuestreo SMOTE con sobremuestreo de 30%
 train_test = {'X':X,'y':y}

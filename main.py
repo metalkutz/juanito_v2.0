@@ -7,8 +7,8 @@ import pickle
 import pandas as pd
 import numpy as np
 
-##########  libreria para entrenamiento #############
-
+###### Modelos entrenados
+#from Modelos import 
 
 # %%
 ######### Carga, preprocesamiento datos ###################
