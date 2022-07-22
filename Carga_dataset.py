@@ -1,4 +1,5 @@
 # %%
+import os
 import pickle
 import pandas as pd
 
@@ -24,12 +25,13 @@ df0 = pd.get_dummies(df0, columns=['Rubro1'] ,drop_first=True) # convertimos var
 df0 = pd.get_dummies(df0, columns=['Rubro2'] ,drop_first=True) # convertimos var categorica Rubro1 en dummy
 df0 = pd.get_dummies(df0, columns=['Rubro3'] ,drop_first=True) # convertimos var categorica Rubro1 en dummy
 df0 = pd.get_dummies(df0, columns=['nombre_producto'] ,drop_first=True) # convertimos var categorica Rubro1 en dummy
-
+# %%
+os.chdir(r'Datos')
 #guardamos el dataframe con la data original
 fh1 = open('data.pkl','wb')
 pickle.dump(data,fh1)
 fh1.close()
-# %%
+
 #guardamos el dataframe solo de las variables categoricas
 X_cat = df0.drop(columns=['label'], axis=1) # creamos la variables independientes
 y_cat = df0['label']  # creamos la variable dependiente

@@ -54,20 +54,22 @@ df2.columns = vectorizador.get_feature_names() # agregamos nombres a las columna
 df2.shape  #51mil registros x 19mil columnas ojo que el indice es numérico con el mismo orden que el dataframe original
 # %%
 ############# ARCHIVOS MUY PESADOS para guardar en GIT o que no se usan 
-#pca = PCA(n_components=10000) # objeto de PCA con un máximo de 10000 componentes
+pca = PCA(n_components=10000) # objeto de PCA con un máximo de 10000 componentes
 #pca = PCA(n_components=1000) 
+#pca = PCA(n_components=2000) 
 #pca = PCA(n_components=5000) 
-pca = PCA(n_components=7000) 
+#pca = PCA(n_components=7000) 
 pca = pca.fit(df2) # ajustamos el PCA al df2 de matriz de palabras
 lista_PCA = [ 'PC'+str(i) for i in range(len(pca.components_)) ] # generamos la lista de nombres de componentes del PCA
 dfPCA = pca.transform(df2)  # aplicamos la transformación al dataframe de la matriz de palabras reduciendo la dimensionalidad
 dfPCA = pd.DataFrame(dfPCA, columns = lista_PCA) # agregamos nombre de las columnas asociadas a los componentes del PCA
 
 # guardamos el dataframe con los componentes principales PCA
-#fh4 = open('df_PCA10k.pkl','wb')
+fh4 = open('df_PCA10k.pkl','wb')
 #fh4 = open('df_PCA1k.pkl','wb')
+#fh4 = open('df_PCA2k.pkl','wb')
 #fh4 = open('df_PCA5k.pkl','wb')
-fh4 = open('df_PCA7k.pkl','wb')
+#fh4 = open('df_PCA7k.pkl','wb')
 pickle.dump(dfPCA,fh4)
 fh4.close()
 
@@ -92,7 +94,7 @@ X.index = X['id_producto']  #vuelvo a dejar el índice del producto
 X.drop(columns=['id_producto'], inplace=True) # elimino la columna 
 # creamos la variable dependiente
 y = data[['label']]  
-# %%
+
 # guardamos el dataframe final para entrenamiento aplicando sobremuestreo SMOTE con sobremuestreo de 30%
 train_test = {'X':X,'y':y}
 fh5 = open('df_PCA10k_train_test.pkl','wb')  ####### OJO QUE ARCHIVO PESA 2GB
