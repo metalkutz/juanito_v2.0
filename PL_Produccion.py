@@ -78,11 +78,11 @@ X
 ############# Aplicar Modelo para entregar predicción #############
 ## Regresion Logistica
 fh4 = open('.\Modelos\m_reglog_PCA_final.pkl','rb')
-reglog_model = pickle.load(fh4)
+logreg_model = pickle.load(fh4)
 fh4.close()
 
 # %%
-y_pred_reglog = reglog_model.predict_proba(X)
+y_pred_reglog = logreg_model.predict_proba(X)
 y_pred_reglog
 # %%
 ## XGBOOST
