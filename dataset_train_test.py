@@ -51,19 +51,26 @@ fh2.close()
 # %%
 'bag of words (vector de palabras) y escalamos con TF-IDF'
 # ahora vectorizamos 
-descripcion = np.array(df['Descripcion raiz limpia']) # array para armar el bag of words
+vocabulario = np.array(df['Descripcion raiz limpia']) # array para armar el bag of words
 np.set_printoptions(precision=2)
+
+fh3 = open('vocabulario.pkl','wb')
+pickle.dump(vocabulario,fh3)
+fh3.close()
 
 # forma corta TFIDF vectorizer o bolsa de palabras normalizada
 vectorizador = TfidfVectorizer()
-matriz_palabras = vectorizador.fit_transform(descripcion) # creamos la bolsa de palabras
+matriz_palabras = vectorizador.fit_transform(vocabulario) # creamos la bolsa de palabras
 matriz_palabras = matriz_palabras.astype('float32') # cambiamos el tipo a float32 para disminuir uso de memoria
-matriz_palabras
+
+fh4 = open('TFIDF.pkl','wb')
+pickle.dump(vectorizador,fh4)
+fh4.close()
 # %%
 ############ PCA ##############
 df2 = pd.DataFrame(matriz_palabras.toarray())  # el array de matriz palabras pasamos a dataframe
 df2.columns = vectorizador.get_feature_names() # agregamos nombres a las columnas con las palabras del vocabulario
-df2.shape  #54484 registros x 19535 columnas ojo que el indice es numérico con el mismo orden que el dataframe original
+#54484 registros x 19535 columnas ojo que el indice es numérico con el mismo orden que el dataframe original
 # %%
 ############# ARCHIVOS MUY PESADOS para guardar en GIT o que no se usan 
 pca = PCA(n_components=10000) # objeto de PCA con un máximo de 10000 componentes
@@ -75,16 +82,20 @@ pca = pca.fit(df2) # ajustamos el PCA al df2 de matriz de palabras
 lista_PCA = [ 'PC'+str(i) for i in range(len(pca.components_)) ] # generamos la lista de nombres de componentes del PCA
 dfPCA = pca.transform(df2)  # aplicamos la transformación al dataframe de la matriz de palabras reduciendo la dimensionalidad
 dfPCA = pd.DataFrame(dfPCA, columns = lista_PCA) # agregamos nombre de las columnas asociadas a los componentes del PCA
-dfPCA.shape
+
+fh4 = open('PCA.pkl','wb')
+pickle.dump(pca,fh4)
+fh4.close()
+
 # %%
 # guardamos el dataframe con los componentes principales PCA
-fh4 = open('df_PCA10k.pkl','wb')
+fh5 = open('df_PCA10k.pkl','wb')
 #fh4 = open('df_PCA1k.pkl','wb')
 #fh4 = open('df_PCA2k.pkl','wb')
 #fh4 = open('df_PCA5k.pkl','wb')
 #fh4 = open('df_PCA7k.pkl','wb')
-pickle.dump(dfPCA,fh4)
-fh4.close()
+pickle.dump(dfPCA,fh5)
+fh5.close()
 
 # %%
 ########## Unimos los PCA con la variable categorica
