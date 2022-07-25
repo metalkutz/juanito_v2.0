@@ -9,7 +9,7 @@ from funciones import texto_limpio,texto_raiz,metrics
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import nltk
+#import nltk
 
 from sklearn.feature_extraction.text import  TfidfVectorizer
 from sklearn.decomposition import PCA
@@ -131,36 +131,45 @@ print('X:',X.shape,'y:',y.shape)
 print('X_train_smote:',X_train_smote.shape,'y_train_smote:',y_train_smote.shape)
 print('X_test:',X_test.shape,'y_test:',y_test.shape)
 # %%
+################# temporal para no tener que correr el PCA
+fh5=open('.\Datos\df_PCA10k_train_test.pkl','rb')
+train_test=pickle.load(fh5)
+fh5.close()
+
+
+X = train_test['X']
+y = train_test['y']
+
+print('X:',X.shape,'y:',y.shape)
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.33, random_state=42)
+
+oversampling = SMOTE(sampling_strategy=0.30) # usamos oversampling sintético podemos elegir el nivel de oversampling con  sampling_strategy=0.80
+X_train_smote, y_train_smote = oversampling.fit_resample(X_train, y_train) #Se obtienen nuevos X e y
+# %%
+print('X_train_smote:',X_train_smote.shape,'y_train_smote:',y_train_smote.shape)
+print('X_test:',X_test.shape,'y_test:',y_test.shape)
+# %%
 #################### TRAIN Y TEST MODELOS REGRESIÓN LOGÍSTICA Y XGBOOST #############
 'PRIMERO REGRESIÓN LOGÍSTICA'
-logreg = LogisticRegression()
+##### los mejores parámetros hasta el momento, no ejecutamos Gridsearch nuevamente dado el alto uso de recurso y tiempo necesario
+logreg = LogisticRegression(
+    solver='lbfgs',
+    C=1.00, #valores que tomará la Inverse of regularization strength [1.00,0.05,0.01]
+    max_iter=500, #Maximum number of iterations taken for the solvers to converge.
+    multi_class= 'ovr', #‘ovr’, then a binary problem is fit for each label
+    penalty='l2',
+    verbose=1)
 
-params = {
-    'C': [1.00,0.05], #valores que tomará la Inverse of regularization strength [1.00,0.05,0.01]
-    'max_iter': [500], #Maximum number of iterations taken for the solvers to converge.
-    'multi_class': ['ovr'], #‘ovr’, then a binary problem is fit for each label
-    'penalty': ['l2']}
-
-scoring = ['roc_auc']
-grid_solver = GridSearchCV(estimator = logreg, # model to train
-                   param_grid = params,
-                   scoring = scoring,
-                   cv = 3,  #aplica cross validation utilizando un stratified KFold
-                   n_jobs=-1,
-                   refit = 'roc_auc',
-                   verbose = 2)
-
-model_result_logreg = grid_solver.fit(X_train_smote,y_train_smote)  # buscamos los mejores hiperparámetros
-
+# %%
+logreg_model = logreg.fit(X_train_smote,y_train_smote)  # buscamos los mejores hiperparámetros
+# %%
 fh = open('.\Modelos\m_reglog_PCA_final.pkl','wb')  #creamos archivo pickel
-pickle.dump(model_result_logreg,fh)  # guardamos modelo
+pickle.dump(logreg_model,fh)  # guardamos modelo
 fh.close() # cerramos la escritura
 
-results_cv=model_result_logreg.cv_results_  # evaluamos la estabilidad del modelo al analizar la varianza de la métrica seleccionada (AUROC)
-results=pd.DataFrame(results_cv)
-results.head()
-
-metrics(model_result_logreg.best_estimator_, X_train_smote, X_test, y_train_smote, y_test, thr=0.5) #evaluamos el modelo con las metricas de clasificación
+metrics(logreg_model, X_train_smote, X_test, y_train_smote, y_test, thr=0.5) #evaluamos el modelo con las metricas de clasificación
 # %%
 'SEGUNDO ENTRENAMIENTO XGBOOST'
 dtrain = xgb.DMatrix(X_train_smote, y_train_smote) #formato datos para libreria de XGBoost
@@ -186,14 +195,20 @@ params={ 'base_score': 0.5, # prediccion inicial
      #'tree_method': ['gpu_hist'], #default=auto ['gpu_hist'] utiliza gpu
      'subsample': 0.9} # ratio de muestras por cada arbol 
 num_round = 150
-
+# %%
 xgb_model = xgb.train(params, dtrain, num_round)
-
+# %%
 fh = open('.\Modelos\m_XGBoost_PCA_vfinal.pkl','wb') #guardamos modelo en archivo pickle
 pickle.dump(xgb_model,fh)
 fh.close()
 xgb_model.save_model(".\Modelos\m_XGBoost_vfinal.json") #tambien guardamos modelo en archivo json
+# %%
+#### temporal para no tener que entrenar de nuevo el modelo xgboost
+fh5 = open('.\Modelos\m_XGBoost_PCA_vfinal.pkl','rb')
+xgb_model = pickle.load(fh5)
+fh5.close()
 
+# %%
 ### metricas
 y_pred_probab = xgb_model.predict(dtest)
 auc = roc_auc_score(y_test, y_pred_probab)
@@ -207,3 +222,6 @@ disp = ConfusionMatrixDisplay(confusion_matrix=cm)
 disp.plot()
 plt.show()
 
+############ ENSAMBLE MODELOS REGRESION LOGISTICA Y XGBOOST
+xgb_model
+logreg_model
