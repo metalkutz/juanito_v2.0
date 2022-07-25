@@ -5,11 +5,22 @@ import regex
 from nltk.corpus import stopwords
 from nltk.stem.snowball import SnowballStemmer
 
+
 #### librerias para Métricas ##########
 from sklearn.metrics import confusion_matrix,ConfusionMatrixDisplay,classification_report,roc_auc_score,RocCurveDisplay
 
 ##### librerias para visualización
 import matplotlib.pyplot as plt
+
+
+import pickle
+
+#Contador de Palabras de catálogo de productos
+lc=open('.\Funciones\lista_columnas.pkl','rb')
+lista_columnas=pickle.load(lc)
+lc.close()
+lista_columnas
+
 # %% 
 sw = stopwords.words('spanish') # descargamos la lista de stopwords
 sw.remove("no")
@@ -56,6 +67,14 @@ def texto_raiz(texto):
     texto = " ".join(texto)
     
     return texto
+
+
+
+  # %% 
+def count_palabras(texto):
+    texto = texto.split() # tokenizar
+    texto = [palabra for palabra in texto if palabra in lista_columnas] # lista de palabras del catalogo de productos
+    return len(texto)
 
 
 # %% 
