@@ -2,7 +2,7 @@
 'Ejecutar código para realizar el proceso de carga, preprocesamiento, entrenamiento y testeo'
 # %%
 import pickle
-from funciones import texto_raiz
+from Funciones.funciones import texto_raiz
 import pandas as pd
 import numpy as np
 # %%

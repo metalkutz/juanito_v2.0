@@ -1,7 +1,7 @@
 # %%
 ####### funciones, carga de datos inicial
 from Carga_dataset import data,df,df0,train_test_cat
-from funciones import texto_limpio,texto_raiz
+from Funciones.funciones import texto_limpio,texto_raiz
 from collections import Counter
 ####### os, pickle
 import os

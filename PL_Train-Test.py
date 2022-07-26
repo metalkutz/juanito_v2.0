@@ -4,7 +4,7 @@
 import os
 import pickle
 
-from funciones import texto_limpio,texto_raiz,metrics
+from Funciones.funciones import texto_limpio,texto_raiz,metrics
 
 import pandas as pd
 import numpy as np
