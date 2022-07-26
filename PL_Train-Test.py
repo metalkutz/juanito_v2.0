@@ -13,13 +13,14 @@ import matplotlib.pyplot as plt
 
 from sklearn.feature_extraction.text import  TfidfVectorizer
 from sklearn.decomposition import PCA
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_val_score, KFold
 from imblearn.over_sampling import SMOTE 
 from catboost import CatBoostRegressor
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV
-from sklearn.metrics import accuracy_score, roc_auc_score, average_precision_score
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, classification_report
+from sklearn.ensemble import StackingClassifier
+#from sklearn.metrics import accuracy_score, roc_auc_score, average_precision_score
+#from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, classification_report
 
 import xgboost as xgb
 from xgboost import XGBClassifier
@@ -125,35 +126,15 @@ X_train, X_test, y_train, y_test = train_test_split(
 #### rebalanceo
 oversampling = SMOTE(sampling_strategy=0.30) # usamos oversampling sintético podemos elegir el nivel de oversampling con  sampling_strategy=0.80
 X_train_smote, y_train_smote = oversampling.fit_resample(X_train, y_train) #Se obtienen nuevos X e y
-# %%
+
 print('data:',data.shape,'df0:',df0.shape,'dfcat:',dfcat.shape,'dfPCA:',dfPCA.shape)
 print('X:',X.shape,'y:',y.shape)
 print('X_train_smote:',X_train_smote.shape,'y_train_smote:',y_train_smote.shape)
 print('X_test:',X_test.shape,'y_test:',y_test.shape)
 # %%
-################# temporal para no tener que correr el PCA
-fh5=open('.\Datos\df_PCA10k_train_test.pkl','rb')
-train_test=pickle.load(fh5)
-fh5.close()
-
-
-X = train_test['X']
-y = train_test['y']
-
-print('X:',X.shape,'y:',y.shape)
-
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.33, random_state=42)
-
-oversampling = SMOTE(sampling_strategy=0.30) # usamos oversampling sintético podemos elegir el nivel de oversampling con  sampling_strategy=0.80
-X_train_smote, y_train_smote = oversampling.fit_resample(X_train, y_train) #Se obtienen nuevos X e y
-# %%
-print('X_train_smote:',X_train_smote.shape,'y_train_smote:',y_train_smote.shape)
-print('X_test:',X_test.shape,'y_test:',y_test.shape)
-# %%
 #################### TRAIN Y TEST MODELOS REGRESIÓN LOGÍSTICA Y XGBOOST #############
 'PRIMERO REGRESIÓN LOGÍSTICA'
-##### los mejores parámetros hasta el momento, no ejecutamos Gridsearch nuevamente dado el alto uso de recurso y tiempo necesario
+##### los mejores hiperparámetros hasta el momento, no ejecutamos Gridsearch nuevamente dado el alto uso de recurso y tiempo necesario
 logreg = LogisticRegression(
     solver='lbfgs',
     C=1.00, #valores que tomará la Inverse of regularization strength [1.00,0.05,0.01]
@@ -161,67 +142,75 @@ logreg = LogisticRegression(
     multi_class= 'ovr', #‘ovr’, then a binary problem is fit for each label
     penalty='l2',
     verbose=1)
-
 # %%
 logreg_model = logreg.fit(X_train_smote,y_train_smote)  # buscamos los mejores hiperparámetros
 # %%
 fh = open('.\Modelos\m_reglog_PCA_final.pkl','wb')  #creamos archivo pickel
 pickle.dump(logreg_model,fh)  # guardamos modelo
 fh.close() # cerramos la escritura
+# %% 
+## Metricas
+scores = cross_val_score(logreg_model, X_train_smote, y_train_smote, cv=5)
+print("Mean cross-validation score: %.2f" % scores.mean())
+
+kfold = KFold(n_splits=10, shuffle=True)
+kf_cv_scores = cross_val_score(logreg_model, X_train_smote, y_train_smote, cv=kfold )
+print("K-fold CV average score: %.2f" % kf_cv_scores.mean())
 
 metrics(logreg_model, X_train_smote, X_test, y_train_smote, y_test, thr=0.5) #evaluamos el modelo con las metricas de clasificación
 # %%
 'SEGUNDO ENTRENAMIENTO XGBOOST'
-dtrain = xgb.DMatrix(X_train_smote, y_train_smote) #formato datos para libreria de XGBoost
-dtest = xgb.DMatrix(X_test, y_test)
 
-##### los mejores parámetros hasta el momento, no ejecutamos Gridsearch nuevamente dado el alto uso de recurso y tiempo necesario
-params={ 'base_score': 0.5, # prediccion inicial
+##### los mejores hiperparámetros hasta el momento, no ejecutamos Gridsearch nuevamente dado el alto uso de recurso y tiempo necesario
+xgb = XGBClassifier(base_score= 0.5, # prediccion inicial
      #'booster': ['gbtree'],# (gbtree, gblinear, dart) default=gbtree
-     'colsample_bylevel': 1,
-     'colsample_bytree': 0.8, #aletoreidad en selección de columnas de cada arbol
-     'learning_rate': 0.05, # [0.05,0.1,0.01]  muy relacionado con el numero de estimadores, preferible learning rate bajo 0.01 y 1000 estimadores por ejemplo
-     'max_depth': 6, #[2,3,4] [4,5,6]
+     colsample_bylevel= 1,
+     colsample_bytree= 0.8, #aletoreidad en selección de columnas de cada arbol
+     learning_rate= 0.05, # [0.05,0.1,0.01]  muy relacionado con el numero de estimadores, preferible learning rate bajo 0.01 y 1000 estimadores por ejemplo
+     max_depth= 6, #[2,3,4] [4,5,6]
      #'max_leaves': [0,5], #[5,10]
-     'min_child_weight': 1, # minimo numero samples por hoja
+     min_child_weight= 1, # minimo numero samples por hoja
      #'missing': [np.nan], # si queremos reemplazar los missings por un numero
-     'n_estimators': 500, # [100,500] 100 es valor default de numero de arboles [100,150,200,250,300,350,400]
-     'n_jobs': -1, # trabajos en paralelo
+     n_estimators= 500, # [100,500] 100 es valor default de numero de arboles [100,150,200,250,300,350,400]
+     n_jobs= -1, # trabajos en paralelo
      #'predictor': ['gpu_predictor'], #default=auto --- Prediction using GPU. Used when tree_method is gpu_hist. only recommended for performing prediction tasks.
-     'random_state': 0, # seed para generar los folds
-     'reg_alpha': 0.01, # L1 regularitacion
-     'reg_lambda': 0.01, # L2 regularitacion
-     'scale_pos_weight': 1,
+     random_state= 0, # seed para generar los folds
+     reg_alpha= 0.01, # L1 regularitacion
+     reg_lambda= 0.01, # L2 regularitacion
+     scale_pos_weight= 1,
      #'tree_method': ['gpu_hist'], #default=auto ['gpu_hist'] utiliza gpu
-     'subsample': 0.9} # ratio de muestras por cada arbol 
-num_round = 150
+     subsample= 0.9 # ratio de muestras por cada arbol
+)
 # %%
-xgb_model = xgb.train(params, dtrain, num_round)
-# %%
+xgb_model = xgb.fit(X_train_smote, y_train_smote)
+
 fh = open('.\Modelos\m_XGBoost_PCA_vfinal.pkl','wb') #guardamos modelo en archivo pickle
 pickle.dump(xgb_model,fh)
 fh.close()
 xgb_model.save_model(".\Modelos\m_XGBoost_vfinal.json") #tambien guardamos modelo en archivo json
-# %%
-#### temporal para no tener que entrenar de nuevo el modelo xgboost
-fh5 = open('.\Modelos\m_XGBoost_PCA_vfinal.pkl','rb')
-xgb_model = pickle.load(fh5)
-fh5.close()
 
-# %%
-### metricas
-y_pred_probab = xgb_model.predict(dtest)
-auc = roc_auc_score(y_test, y_pred_probab)
-aps = average_precision_score(y_test, y_pred_probab)
-y_pred= (y_pred_probab>0.5)*1
-print('Test AUROC',auc)
-print('Classification report with Threshold=0.5')
-print(classification_report(y_test,y_pred,target_names=['0','1']))
-cm = confusion_matrix(y_test,y_pred) #Matriz
-disp = ConfusionMatrixDisplay(confusion_matrix=cm)
-disp.plot()
-plt.show()
+## Metricas
+scores = cross_val_score(xgb_model, X_train_smote, y_train_smote, cv=5)
+print("Mean cross-validation score: %.2f" % scores.mean())
 
+kfold = KFold(n_splits=10, shuffle=True)
+kf_cv_scores = cross_val_score(xgb_model, X_train_smote, y_train_smote, cv=kfold )
+print("K-fold CV average score: %.2f" % kf_cv_scores.mean())
+
+metrics(xgb_model, X_train_smote, X_test, y_train_smote, y_test, thr=0.5)
 ############ ENSAMBLE MODELOS REGRESION LOGISTICA Y XGBOOST
-xgb_model
-logreg_model
+estimators = [ # ddos modelos distintos, un random forest y un SVC con escalado previo
+        ('reglog', logreg_model),
+    ('xgb', xgb_model)
+     # aqui mete como modelo un pipeline con un standard scaler y un SVC
+]
+stack = StackingClassifier(
+    estimators=estimators, final_estimator=LogisticRegression())
+
+stack.fit(X_train_smote, y_train_smote)
+# %%
+fh = open('m_stacking_PCA.pkl','wb') #guardamos modelo en archivo pickle
+pickle.dump(stack,fh)
+fh.close()
+
+metrics(stack, X_train_smote, X_test, y_train_smote, y_test, thr=0.5)

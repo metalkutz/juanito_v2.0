@@ -1,7 +1,6 @@
 ############ PIPELINE PRODUCCIÓN (PREDICCIÓN)
 'Ejecutar código para realizar el proceso de carga, preprocesamiento, entrenamiento y testeo'
 # %%
-import os
 import pickle
 
 from funciones import texto_raiz
@@ -36,15 +35,15 @@ df0 = pd.get_dummies(df0, columns=['Rubro2'] ,drop_first=True) # convertimos var
 df0 = pd.get_dummies(df0, columns=['Rubro3'] ,drop_first=True) # convertimos var categorica Rubro1 en dummy
 df0 = pd.get_dummies(df0, columns=['nombre_producto'] ,drop_first=True) # convertimos var categorica Rubro1 en dummy
 
-#fh1 = open('.\Funciones\Filtro_cat.pkl','rb')
-fh1 = open(r'.\Datos\array_categorias_importantes.pkl','rb')
+fh1 = open('.\Funciones\Filtro_cat.pkl','rb')
 filtro = pickle.load(fh1)
 fh1.close()
 #### BUSCAR FORMA PARA QUE NO ARROJE ERROR CUANDO NO ENCUENTRE LAS COLUMNAS
 dfcat = df0[filtro]  #dataframe filtrado solo por las columnas
 
-#### mientras para reducir numero de campos
+#### TEMPORAL!!!! mientras para reducir numero de campos
 dfcat = dfcat.iloc[:5,:]
+#### FIN TEMPORAL
 # %%
 ## NLP limpieza y preparación texto del campo descripción
 df['descripcion']= df['descripcion'].astype(str) #Convertimos la columna en string para poder trabajar con el texto
@@ -64,9 +63,9 @@ df2.columns = vectorizador.get_feature_names() # agregamos nombres a las columna
 fh3 = open('.\Funciones\PCA.pkl','rb')
 pca = pickle.load(fh3)
 fh3.close()
-#### mientras para probar proceso
+#### TEMPORAL!!!! mientras para reducir numero de campos
 df2 = df2.iloc[:5,:]
-##### fin mientras
+##### fin TEMPORAL
 dfPCA = pca.transform(df2)
 lista_PCA = [ 'PC'+str(i) for i in range(len(pca.components_)) ]
 dfPCA = pd.DataFrame(dfPCA, columns = lista_PCA)
