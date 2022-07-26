@@ -2,18 +2,9 @@
 'Ejecutar código para realizar el proceso de carga, preprocesamiento, entrenamiento y testeo'
 # %%
 import pickle
-
 from funciones import texto_raiz
-
 import pandas as pd
 import numpy as np
-
-#from sklearn.feature_extraction.text import  TfidfVectorizer
-#from sklearn.decomposition import PCA
-
-#from sklearn.linear_model import LogisticRegression
-
-import xgboost as xgb
 # %%
 ############# Carga del registro o registros para asignar predicción #########
 data = pd.read_csv(r'.\Datos\dataset_mercado_publico.csv', delimiter=';')
@@ -83,15 +74,3 @@ fh4.close()
 # %%
 y_pred_reglog = logreg_model.predict_proba(X)
 y_pred_reglog
-# %%
-## XGBOOST
-fh5 = open('.\Modelos\m_XGBoost_PCA_vfinal.pkl','rb')
-xgb_model = pickle.load(fh5)
-fh5.close()
-xgb_model
-# %%
-X_dmat = xgb.DMatrix(X)
-y_pred_xgboost = xgb_model.predict(X_dmat)
-y_pred_xgboost
-
-# %%
