@@ -8,12 +8,13 @@ import numpy as np
 # %%
 ############# Carga del registro o registros para asignar predicción #########
 data = pd.read_csv(r'.\Datos\dataset_mercado_publico.csv', delimiter=';')
-data = data.rename(columns={'Tender_id':'id_licitacion','Item_Key':'id_producto','Nombre linea Adquisicion':'nombre_producto','Descripcion linea Adquisicion':'descripcion'})
+data = data.rename(columns={'Tender_id':'id_licitacion','Item_Key':'id_producto','Nombre linea Adquisicion':'nombre_producto','Descripcion linea Adquisicion':'descripcion','Kupfer':'label'})
 data.index = data['id_producto']  # cambiamos el indice del dataframe por el id_producto
 data.drop(columns=['id_producto'], inplace=True)
-data.drop(columns=['Kupfer'], inplace=True)
+y = data['label']
+data.drop(columns=['label'], inplace=True)
 #data = data.iloc[:5,:]
-
+# %%
 df = data.copy() # hacemos una copia sobre la cual trabajar el campo descripcion
 df0 = data.copy() # hacemos una copia sobre la cual trabajar las variables categoricas
 df.drop(columns=['id_licitacion','Rubro1','Rubro2','Rubro3','nombre_producto'], inplace=True)
@@ -33,8 +34,10 @@ fh1.close()
 dfcat = df0[filtro]  #dataframe filtrado solo por las columnas
 
 #### TEMPORAL!!!! mientras para reducir numero de campos
-dfcat = dfcat.iloc[:5,:]
+dfcat = dfcat.iloc[:-5,:]
 #### FIN TEMPORAL
+# %%
+dfcat
 # %%
 ## NLP limpieza y preparación texto del campo descripción
 df['descripcion']= df['descripcion'].astype(str) #Convertimos la columna en string para poder trabajar con el texto
@@ -60,7 +63,10 @@ df2 = df2.iloc[:5,:]
 dfPCA = pca.transform(df2)
 lista_PCA = [ 'PC'+str(i) for i in range(len(pca.components_)) ]
 dfPCA = pd.DataFrame(dfPCA, columns = lista_PCA)
-dfPCA.index = df.iloc[:5,:].index #volvemos a asignar el indice original al nuevo dataframe
+dfPCA.index = df.iloc[:5,:].index
+dfPCA = dfPCA.iloc[:-5,:]
+
+ #volvemos a asignar el indice original al nuevo dataframe
 # %%
 X = pd.concat([dfcat,dfPCA], axis=1)
 X
@@ -73,4 +79,5 @@ fh4.close()
 
 # %%
 y_pred_reglog = logreg_model.predict_proba(X)
-y_pred_reglog
+print(y_pred_reglog)
+# %%
