@@ -1,6 +1,4 @@
 # %%
-import os
-import pickle
 import pandas as pd
 
 'carga inicial dataset desde archivo csv a un objeto panda'

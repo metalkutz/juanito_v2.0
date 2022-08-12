@@ -1,6 +1,6 @@
 # %%
 ####### funciones, carga de datos inicial
-from Carga_dataset import data,df,df0,train_test_cat
+from Datos.Carga_dataset import data,df,df0,train_test_cat
 from Funciones.funciones import texto_limpio,texto_raiz
 from collections import Counter
 ####### os, pickle
@@ -18,17 +18,13 @@ from sklearn.decomposition import PCA
 
 ######### re-balanceo de muestras ##########
 from imblearn.over_sampling import SMOTE 
-
-'cambiamos a directorio de datos para guardar los dataframes creados'
-os.chdir(r'Datos')
 # %%
-
 #guardamos el dataframe con la data original
 fh1 = open('data.pkl','wb')
 pickle.dump(data,fh1)
 fh1.close()
 
-fh0 = open('.\df_categorias.pkl','wb')
+fh0 = open('df_categorias.pkl','wb')
 pickle.dump(train_test_cat,fh0)
 fh0.close()
 # %%
